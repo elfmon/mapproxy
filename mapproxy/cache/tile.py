@@ -373,6 +373,9 @@ class TileCreator(object):
                 tile = self.tile_mgr.apply_tile_filter(tile)
                 if source.cacheable:
                     self.cache.store_tile(tile)
+                else:
+                    # modify by Mon 2019.10.28  当瓦片请求不到，返回空数组，让 upscale_tiles 的设置生效
+                    return []
             else:
                 self.cache.load_tile(tile)
         return [tile]

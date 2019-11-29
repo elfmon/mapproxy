@@ -16,6 +16,7 @@
 from __future__ import absolute_import
 
 from mapproxy.compat import string_type
+import mapproxy.util.rsa
 import yaml
 
 class YAMLError(Exception):

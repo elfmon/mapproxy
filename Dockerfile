@@ -1,39 +1,37 @@
 FROM python:3.6
 MAINTAINER Mon <elfmon@gmail.com>
 
-ENV MAPPROXY_PROCESSES 4
+ENV MAPPROXY_PROCESSES 2
 ENV MAPPROXY_THREADS 2
 
-RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    python-pil \
-    python-yaml \
-    libproj13 \
-    libgeos-dev \
-    python-lxml \
-    libgdal-dev \
-    build-essential \
-    python-dev \
-    libjpeg-dev \
-    zlib1g-dev \
-    libfreetype6-dev \
-    python-virtualenv \
+# 更新阿里云的wheezy版本包源
+RUN echo "deb http://mirrors.aliyun.com/debian buster main contrib non-free" > /etc/apt/sources.list && \
+    echo "deb-src http://mirrors.aliyun.com/debian buster main contrib non-free" >> /etc/apt/sources.list  && \
+    echo "deb http://mirrors.aliyun.com/debian buster-updates main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb-src http://mirrors.aliyun.com/debian buster-updates main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb http://mirrors.aliyun.com/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb-src http://mirrors.aliyun.com/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list
+
+RUN set -x \
+  && apt-get update --fix-missing \
+  && apt-get install -y libgeos-dev python-lxml libgdal-dev \
+    python-shapely build-essential python-dev libjpeg-dev \
+    zlib1g-dev libfreetype6-dev\
   && rm -rf /var/lib/apt/lists/* \
-  && useradd -ms /bin/bash mapproxy \
   && mkdir -p /mapproxy \
-  && chown mapproxy /mapproxy \
-  && pip install Shapely Pillow requests geojson uwsgi pycryptodome\
+  && chown 0755 /mapproxy \
+  && pip install -i https://mirrors.aliyun.com/pypi/simple/ PyYAML Shapely Pillow requests geojson uwsgi pycryptodome\
   && mkdir -p /docker-entrypoint-initmapproxy.d
 
 COPY . /code
-RUN ls ./code && cd ./code && python3 ./setup.py install && cd .. && rm -rf ./code
+RUN cd ./code && python3 ./setup.py install && cd .. && rm -rf ./code
 
 COPY docker-entrypoint.sh /
+RUN chmod 0755 /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["mapproxy"]
 
-USER mapproxy
 VOLUME ["/mapproxy"]
 EXPOSE 8080
 # Stats

@@ -1,0 +1,6 @@
+certifi==2019.9.11
+Jinja2==2.10.1
+MarkupSafe==1.0
+Pillow==6.2.0
+pycryptodome==3.8.2
+PyYAML==5.1.2

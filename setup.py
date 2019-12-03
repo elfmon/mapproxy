@@ -5,6 +5,7 @@ import pkg_resources
 
 install_requires = [
     'PyYAML>=3.0',
+    'pycryptodome>=3.0',
 ]
 
 def package_installed(pkg):

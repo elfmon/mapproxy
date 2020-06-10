@@ -88,3 +88,4 @@ def load_yaml(doc):
         # all configs are dicts, raise YAMLError to prevent later AttributeErrors (#352)
         raise YAMLError("configuration not a YAML dictionary")
     return data
+

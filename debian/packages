@@ -3,3 +3,7 @@ libxslt1-dev
 build-essential
 libgeos-dev
 python-pil
+python-yaml
+libproj13
+libproj-dev
+python-shapely

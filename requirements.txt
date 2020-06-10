@@ -4,3 +4,4 @@ MarkupSafe==1.0
 Pillow==6.2.0
 pycryptodome==3.8.2
 PyYAML==5.1.2
+cryptoyaml==0.2.0

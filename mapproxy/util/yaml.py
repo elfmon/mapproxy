@@ -16,11 +16,14 @@
 from __future__ import absolute_import
 
 from mapproxy.compat import string_type
-import mapproxy.util.rsa
 import yaml
+import os
+from cryptoyaml import CryptoYAML
+
 
 class YAMLError(Exception):
     pass
+
 
 def load_yaml_file(file_or_filename):
     """
@@ -31,19 +34,33 @@ def load_yaml_file(file_or_filename):
             return load_yaml(f)
     return load_yaml(file_or_filename)
 
+
 def _load_yaml(doc):
     # try different methods to load yaml
+    secretKey = os.environ['SECRET_KEY']
     try:
         if getattr(yaml, '__with_libyaml__', False):
             try:
-                return yaml.load(doc, Loader=yaml.CSafeLoader)
+                if secretKey is not None:
+                    return _load_crypto_yaml(doc.name, secretKey)
+                else:
+                    return yaml.load(doc, Loader=yaml.CSafeLoader)
             except AttributeError:
                 # handle cases where __with_libyaml__ is True but
                 # CLoader doesn't work (missing .dispose())
                 return yaml.safe_load(doc)
-        return yaml.safe_load(doc)
+        else:
+            if secretKey is not None:
+                return _load_crypto_yaml(doc.name, secretKey)
+            else:
+                return yaml.safe_load(doc)
     except (yaml.scanner.ScannerError, yaml.parser.ParserError) as ex:
         raise YAMLError(str(ex))
+
+
+def _load_crypto_yaml(doc, key):
+    return CryptoYAML(doc, key).data
+
 
 def load_yaml(doc):
     """
@@ -54,4 +71,3 @@ def load_yaml(doc):
         # all configs are dicts, raise YAMLError to prevent later AttributeErrors (#352)
         raise YAMLError("configuration not a YAML dictionary")
     return data
-

@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.7
 MAINTAINER Mon <elfmon@gmail.com>
 
 ENV MAPPROXY_PROCESSES 2
@@ -16,7 +16,7 @@ RUN set -x \
   && apt-get update --fix-missing \
   && apt-get install -y libgeos-dev python-lxml libgdal-dev \
     python-shapely build-essential python-dev libjpeg-dev \
-    zlib1g-dev libfreetype6-dev\
+    zlib1g-dev libfreetype6-dev libproj13\
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /mapproxy \
   && chown 0755 /mapproxy \

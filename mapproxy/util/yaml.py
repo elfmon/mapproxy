@@ -37,29 +37,45 @@ def load_yaml_file(file_or_filename):
 
 def _load_yaml(doc):
     # try different methods to load yaml
-    secretKey = os.environ['SECRET_KEY']
     try:
         if getattr(yaml, '__with_libyaml__', False):
             try:
-                if secretKey is not None:
-                    return _load_crypto_yaml(doc.name, secretKey)
-                else:
-                    return yaml.load(doc, Loader=yaml.CSafeLoader)
+                return _safe_load_yaml(doc, yaml.load, yaml.CSafeLoader)
             except AttributeError:
                 # handle cases where __with_libyaml__ is True but
                 # CLoader doesn't work (missing .dispose())
                 return yaml.safe_load(doc)
         else:
-            if secretKey is not None:
-                return _load_crypto_yaml(doc.name, secretKey)
-            else:
-                return yaml.safe_load(doc)
+            return _safe_load_yaml(doc, yaml.safe_load)
     except (yaml.scanner.ScannerError, yaml.parser.ParserError) as ex:
         raise YAMLError(str(ex))
 
 
+def _safe_load_yaml(doc, yamlloadfunc, loader=None):
+    secret_key = _safe_get_env('SECRET_KEY')
+    try:
+        if secret_key is not None:
+            return _load_crypto_yaml(doc.name, secret_key)
+        else:
+            if loader is not None:
+                return yamlloadfunc(doc, loader)
+            return yamlloadfunc(doc)
+    except:
+        if loader is not None:
+            return yamlloadfunc(doc, loader)
+        return yamlloadfunc(doc)
+
+
 def _load_crypto_yaml(doc, key):
     return CryptoYAML(doc, key).data
+
+
+def _safe_get_env(key):
+    try:
+        val = os.environ[key]
+        return val
+    except KeyError:
+        return None
 
 
 def load_yaml(doc):

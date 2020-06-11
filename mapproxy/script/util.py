@@ -32,6 +32,10 @@ from mapproxy.script.grids import grids_command
 from mapproxy.script.scales import scales_command
 from mapproxy.script.wms_capabilities import wms_capabilities_command
 from mapproxy.version import version
+from mapproxy.util.yaml import load_yaml_file
+
+from cryptoyaml import generate_key, CryptoYAML
+from cryptography.fernet import Fernet
 
 
 def setup_logging(level=logging.INFO, format=None):
@@ -45,6 +49,41 @@ def setup_logging(level=logging.INFO, format=None):
     formatter = logging.Formatter(format)
     ch.setFormatter(formatter)
     mapproxy_log.addHandler(ch)
+
+
+def generate_key_command(args):
+    key = Fernet.generate_key()
+    print('Key: %s' % str(key, encoding="utf-8"))
+
+
+def crypto_yaml_command(args):
+    parser = optparse.OptionParser("usage: %prog ctypto-yaml [options] original.yaml crypto.yaml")
+    parser.add_option("-k", "--key",
+                      dest="secretKey", default='bNZbj7T285uHoOI5LtZ1H9nJC_prd0hmcFVnok3B4Gs=',
+                      help="Provide the secret key.")
+    options, args = parser.parse_args(args)
+
+    if len(args) != 3:
+        parser.print_help()
+        print("\nERROR: Crypto configuration required.")
+        sys.exit(1)
+
+    key = options.secretKey
+    original_conf = args[1]
+    crypto_conf = args[2]
+    conf_base_dir = os.path.abspath(os.path.dirname(original_conf))
+    original_conf_file = os.path.normpath(os.path.join(conf_base_dir, os.path.basename(original_conf)))
+    crypto_conf_file = os.path.normpath(os.path.join(conf_base_dir, os.path.basename(crypto_conf)))
+    data = load_yaml_file(original_conf_file)
+
+    # with open(crypto_conf_file, 'wb') as outfile:
+    #     outfile.close()
+    # os.chmod(crypto_conf_file, 0o400)
+
+    crypto_yaml = CryptoYAML(crypto_conf_file, key)
+    crypto_yaml.data = data
+    crypto_yaml.write()
+
 
 def serve_develop_command(args):
     parser = optparse.OptionParser("usage: %prog serve-develop [options] mapproxy.yaml")
@@ -73,7 +112,6 @@ def serve_develop_command(args):
         #############################################\
         """))
 
-
     if options.debug:
         setup_logging(level=logging.DEBUG)
     else:
@@ -92,20 +130,21 @@ def serve_develop_command(args):
         try:
             from repoze.profile import ProfileMiddleware
             app = ProfileMiddleware(
-               app,
-               log_filename='/tmp/mapproxy_profile.log',
-               discard_first_request=True,
-               flush_at_shutdown=True,
-               path='/__profile__',
-               unwind=False,
+                app,
+                log_filename='/tmp/mapproxy_profile.log',
+                discard_first_request=True,
+                flush_at_shutdown=True,
+                path='/__profile__',
+                unwind=False,
             )
             print('Installed profiler at /__profile__')
         except ImportError:
             pass
 
     run_simple(host, port, app, use_reloader=True, processes=1,
-        threaded=True, passthrough_errors=True,
-        extra_files=extra_files)
+               threaded=True, passthrough_errors=True,
+               extra_files=extra_files)
+
 
 def serve_multiapp_develop_command(args):
     parser = optparse.OptionParser("usage: %prog serve-multiapp-develop [options] projects/")
@@ -140,7 +179,7 @@ def serve_multiapp_develop_command(args):
     app = make_wsgi_app(mapproxy_conf_dir, debug=options.debug)
 
     run_simple(host, port, app, use_reloader=True, processes=1,
-        threaded=True, passthrough_errors=True)
+               threaded=True, passthrough_errors=True)
 
 
 def parse_bind_address(address, default=('localhost', 8080)):
@@ -168,6 +207,7 @@ def create_command(args):
     cmd = CreateCommand(args)
     cmd.run()
 
+
 class CreateCommand(object):
     templates = {
         'base-config': {},
@@ -178,14 +218,14 @@ class CreateCommand(object):
     def __init__(self, args):
         parser = optparse.OptionParser("usage: %prog create [options] [destination]")
         parser.add_option("-t", "--template", dest="template",
-            help="Create a configuration from this template.")
+                          help="Create a configuration from this template.")
         parser.add_option("-l", "--list-templates", dest="list_templates",
-            action="store_true", default=False,
-            help="List all available configuration templates.")
+                          action="store_true", default=False,
+                          help="List all available configuration templates.")
         parser.add_option("-f", "--mapproxy-conf", dest="mapproxy_conf",
-            help="Existing MapProxy configuration (required for some templates).")
+                          help="Existing MapProxy configuration (required for some templates).")
         parser.add_option("--force", dest="force", action="store_true",
-            default=False, help="Force operation (e.g. overwrite existing files).")
+                          default=False, help="Force operation (e.g. overwrite existing files).")
 
         self.options, self.args = parser.parse_args(args)
         self.parser = parser
@@ -238,13 +278,13 @@ class CreateCommand(object):
             self.log_error("%s already exists, use --force", app_filename)
             return 1
 
-        print("writing MapProxy app to %s" % (app_filename, ))
+        print("writing MapProxy app to %s" % (app_filename,))
 
         template_dir = self.template_dir()
         app_template = io.open(os.path.join(template_dir, 'config.wsgi'), encoding='utf-8').read()
         with io.open(app_filename, 'w', encoding='utf-8') as f:
             f.write(app_template % {'mapproxy_conf': mapproxy_conf,
-                'here': os.path.dirname(mapproxy_conf)})
+                                    'here': os.path.dirname(mapproxy_conf)})
 
         return 0
 
@@ -256,13 +296,13 @@ class CreateCommand(object):
         template_dir = self.template_dir()
 
         for filename in ('mapproxy.yaml', 'seed.yaml',
-            'full_example.yaml', 'full_seed_example.yaml'):
+                         'full_example.yaml', 'full_seed_example.yaml'):
             to = os.path.join(outdir, filename)
             from_ = os.path.join(template_dir, filename)
             if os.path.exists(to) and not self.options.force:
                 self.log_error("%s already exists, use --force", to)
                 return 1
-            print("writing %s" % (to, ))
+            print("writing %s" % (to,))
             shutil.copy(from_, to)
 
         return 0
@@ -280,6 +320,7 @@ class CreateCommand(object):
             f.write(log_template)
 
         return 0
+
 
 commands = {
     'serve-develop': {
@@ -317,6 +358,14 @@ commands = {
     'defrag-compact-cache': {
         'func': defrag_command,
         'help': 'De-fragmentate compact caches.'
+    },
+    'ctypto-yaml': {
+        'func': crypto_yaml_command,
+        'help': 'Crypto the YAML file.'
+    },
+    'generate-key': {
+        'func': generate_key_command,
+        'help': 'Crypto the YAML file.'
     }
 }
 
@@ -352,7 +401,7 @@ def print_items(data, title='Commands'):
     name_len = max(len(name) for name in data)
 
     if title:
-        print('%s:' % (title, ), file=sys.stdout)
+        print('%s:' % (title,), file=sys.stdout)
     for name, item in iteritems(data):
         help = item.get('help', '')
         name = ('%%-%ds' % name_len) % name
@@ -360,9 +409,10 @@ def print_items(data, title='Commands'):
             help = '  ' + help
         print('  %s%s' % (name, help), file=sys.stdout)
 
+
 def main():
     parser = NonStrictOptionParser("usage: %prog COMMAND [options]",
-        add_help_option=False)
+                                   add_help_option=False)
     options, args = parser.parse_args()
 
     if len(args) < 1 or args[0] in ('--help', '-h'):
@@ -385,6 +435,7 @@ def main():
 
     args = sys.argv[0:1] + sys.argv[2:]
     commands[command]['func'](args)
+
 
 if __name__ == '__main__':
     main()

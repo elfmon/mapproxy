@@ -365,7 +365,7 @@ commands = {
     },
     'generate-key': {
         'func': generate_key_command,
-        'help': 'Crypto the YAML file.'
+        'help': 'Generate the secret key.'
     }
 }
 

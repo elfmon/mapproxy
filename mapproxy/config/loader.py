@@ -297,9 +297,10 @@ class GridConfiguration(ConfigurationBase):
                                                            global_key='image.max_shrink_factor')
 
         if conf.get('origin') is None:
-            log.warning('grid %s does not have an origin. default origin will change from sw (south/west) to nw (north-west) with MapProxy 2.0',
+            log.warning(
+                'grid %s does not have an origin. default origin will change from sw (south/west) to nw (north-west) with MapProxy 2.0',
                 conf['name'],
-            )
+                )
 
         grid = tile_grid(
             name=conf['name'],

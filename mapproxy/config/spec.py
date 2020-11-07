@@ -22,6 +22,7 @@ from mapproxy.util.ext.dictspec.spec import one_of, anything, number
 from mapproxy.util.ext.dictspec.spec import recursive, required, type_spec, combined
 from mapproxy.compat import string_type
 
+
 def validate_options(conf_dict):
     """
     Validate `conf_dict` agains mapproxy.yaml spec.
@@ -35,6 +36,7 @@ def validate_options(conf_dict):
         return ex.errors, ex.informal_only
     else:
         return [], True
+
 
 coverage = recursive({
     'polygons': str(),
@@ -148,7 +150,7 @@ cache_types = {
         'endpoint_url': str(),
         'access_control_list': str(),
         'tile_lock_dir': str(),
-     },
+    },
     'riak': {
         'nodes': [riak_node],
         'protocol': one_of('pbc', 'http', 'https'),
@@ -180,8 +182,6 @@ on_error = {
         'cache': bool,
     }
 }
-
-
 
 inspire_md = {
     'linked': {
@@ -253,13 +253,13 @@ wms_130_layer_md = {
     ],
     'attribution': {
         'title': string_type,
-        'url':    str,
+        'url': str,
         'logo': {
-            'url':    str,
-            'width':  int,
+            'url': str,
+            'width': int,
             'height': int,
             'format': string_type,
-       }
+        }
     },
     'identifier': [
         {
@@ -339,7 +339,7 @@ band_sources = {
 }
 
 mapproxy_yaml_spec = {
-    '__config_files__': anything(), # only used internaly
+    '__config_files__': anything(),  # only used internaly
     'globals': {
         'image': {
             'resampling_method': 'method',
@@ -381,10 +381,10 @@ mapproxy_yaml_spec = {
             'tile_size': [int()],
         },
         'srs': {
-          'axis_order_ne': [str()],
-          'axis_order_en': [str()],
-          'proj_data_dir': str(),
-          'preferred_src_proj': {anything(): [str()]},
+            'axis_order_ne': [str()],
+            'axis_order_en': [str()],
+            'proj_data_dir': str(),
+            'preferred_src_proj': {anything(): [str()]},
         },
         'tiles': {
             'expires_hours': number(),
@@ -484,7 +484,7 @@ mapproxy_yaml_spec = {
                     'featureinfo_out_format': str(),
                 },
                 'image': combined(image_opts, {
-                    'opacity':number(),
+                    'opacity': number(),
                     'transparent_color': one_of(str(), [number()]),
                     'transparent_color_tolerance': number(),
                 }),
@@ -499,28 +499,28 @@ mapproxy_yaml_spec = {
                 }
             }),
             'mapserver': combined(source_commons, {
-                    'wms_opts': {
-                        'version': str(),
-                        'map': bool(),
-                        'featureinfo': bool(),
-                        'legendgraphic': bool(),
-                        'legendurl': str(),
-                        'featureinfo_format': str(),
-                        'featureinfo_xslt': str(),
-                    },
-                    'image': combined(image_opts, {
-                        'opacity':number(),
-                        'transparent_color': one_of(str(), [number()]),
-                        'transparent_color_tolerance': number(),
-                    }),
-                    'supported_formats': [str()],
-                    'supported_srs': [str()],
-                    'forward_req_params': [str()],
-                    required('req'): {
-                        required('map'): str(),
-                        anything(): anything()
-                    },
-                    'mapserver': mapserver_opts,
+                'wms_opts': {
+                    'version': str(),
+                    'map': bool(),
+                    'featureinfo': bool(),
+                    'legendgraphic': bool(),
+                    'legendurl': str(),
+                    'featureinfo_format': str(),
+                    'featureinfo_xslt': str(),
+                },
+                'image': combined(image_opts, {
+                    'opacity': number(),
+                    'transparent_color': one_of(str(), [number()]),
+                    'transparent_color_tolerance': number(),
+                }),
+                'supported_formats': [str()],
+                'supported_srs': [str()],
+                'forward_req_params': [str()],
+                required('req'): {
+                    required('map'): str(),
+                    anything(): anything()
+                },
+                'mapserver': mapserver_opts,
             }),
             'tile': combined(source_commons, {
                 required('url'): str(),
@@ -528,7 +528,7 @@ mapproxy_yaml_spec = {
                 'image': image_opts,
                 'grid': str(),
                 'request_format': str(),
-                'origin': str(), # TODO: remove with 1.5
+                'origin': str(),  # TODO: remove with 1.5
                 'http': http_opts,
                 'on_error': on_error,
             }),
@@ -541,7 +541,7 @@ mapproxy_yaml_spec = {
                 'scale_factor': number(),
             }),
             'arcgis': combined(source_commons, {
-               required('req'): {
+                required('req'): {
                     required('url'): str(),
                     'dpi': int(),
                     'layers': str(),
@@ -587,8 +587,7 @@ mapproxy_yaml_spec = {
             }
         })])
     ),
-     # `parts` can be used for partial configurations that are referenced
-     # from other sections (e.g. coverages, dimensions, etc.)
+    # `parts` can be used for partial configurations that are referenced
+    # from other sections (e.g. coverages, dimensions, etc.)
     'parts': anything(),
 }
-

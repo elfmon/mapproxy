@@ -17,6 +17,7 @@ import os.path
 from mapproxy.compat import string_type, iteritems
 
 import logging
+
 log = logging.getLogger('mapproxy.config')
 
 import mapproxy.config.defaults
@@ -104,7 +105,6 @@ class Validator(object):
                 )
             )
 
-
     def _split_tagged_source(self, source_name):
         layers = None
         if ':' in str(source_name):
@@ -137,9 +137,9 @@ class Validator(object):
         mapserver = source.get('mapserver')
         if mapserver is None:
             if (
-                not self.globals_conf or
-                not self.globals_conf.get('mapserver') or
-                not self.globals_conf['mapserver'].get('binary')
+                    not self.globals_conf or
+                    not self.globals_conf.get('mapserver') or
+                    not self.globals_conf['mapserver'].get('binary')
             ):
                 self.errors.append("Missing mapserver binary for source '%s'" % (
                     name
@@ -183,7 +183,7 @@ class Validator(object):
     def _validate_cache(self, name, cache):
         if isinstance(cache.get('sources', []), dict):
             self._validate_bands(name, set(cache['sources'].keys()))
-            for band, confs  in iteritems(cache['sources']):
+            for band, confs in iteritems(cache['sources']):
                 for conf in confs:
                     band_source = conf['source']
                     self._validate_cache_source(name, band_source)
@@ -205,8 +205,8 @@ class Validator(object):
         if self.sources_conf and source_name in self.sources_conf:
             source = self.sources_conf.get(source_name)
             if (
-                layers is not None and
-                source.get('type') not in TAGGED_SOURCE_TYPES
+                    layers is not None and
+                    source.get('type') not in TAGGED_SOURCE_TYPES
             ):
                 self.errors.append(
                     "Found tagged source '%s' in cache '%s' but tagged sources only "
@@ -236,4 +236,3 @@ class Validator(object):
                     cache_name
                 )
             )
-

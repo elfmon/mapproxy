@@ -25,7 +25,9 @@ from mapproxy.compat import iteritems
 from threading import Lock
 
 import logging
+
 log = logging.getLogger(__name__)
+
 
 def asbool(value):
     """
@@ -37,6 +39,7 @@ def asbool(value):
     value = str(value).lower()
     return value in ('1', 'true', 'yes', 'on')
 
+
 def app_factory(global_options, config_dir, allow_listing=False, **local_options):
     """
     Create a new MultiMapProxy app.
@@ -46,10 +49,12 @@ def app_factory(global_options, config_dir, allow_listing=False, **local_options
     """
     return make_wsgi_app(config_dir, asbool(allow_listing))
 
+
 def make_wsgi_app(config_dir, allow_listing=True, debug=False):
     """
     Create a MultiMapProxy with the given config directory.
 
+    :param debug:
     :param config_dir: the directory with all project configurations.
     :param allow_listing: True if MapProxy should list all instances
         at the root URL
@@ -79,7 +84,7 @@ class MultiMapProxy(object):
 
         if not app_name or (
                 app_name not in self.apps and not self.loader.app_available(app_name)
-            ):
+        ):
             return Response('not found', status=404)
 
         # safe instance/app name for authorization
@@ -170,6 +175,7 @@ class DirectoryConfLoader(ConfLoader):
     """
     Load application configurations from a directory.
     """
+
     def __init__(self, base_dir, suffix='.yaml'):
         self.base_dir = base_dir
         self.suffix = suffix

@@ -15,6 +15,7 @@
 
 from mapproxy.client.http import retrieve_image
 
+
 class TileClient(object):
     def __init__(self, url_template, http_client=None, grid=None):
         self.url_template = url_template
@@ -30,6 +31,7 @@ class TileClient(object):
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.url_template)
+
 
 class TileURLTemplate(object):
     """
@@ -54,14 +56,16 @@ class TileURLTemplate(object):
     'http://foo/tms/1.0.0/lyr/3/7/4.jpeg'
 
     """
+
     def __init__(self, template, format='png'):
-        self.template= template
+        self.template = template
         self.format = format
         self.with_quadkey = True if '%(quadkey)' in template else False
         self.with_tc_path = True if '%(tc_path)' in template else False
         self.with_tms_path = True if '%(tms_path)' in template else False
         self.with_arcgiscache_path = True if '%(arcgiscache_path)' in template else False
         self.with_bbox = True if '%(bbox)' in template else False
+        self.with_baiduxy = True if '%(by)' in template or '%(bx)' in template else False
 
     def substitute(self, tile_coord, format=None, grid=None):
         x, y, z = tile_coord
@@ -77,12 +81,16 @@ class TileURLTemplate(object):
             data['arcgiscache_path'] = arcgiscache_path(tile_coord)
         if self.with_bbox:
             data['bbox'] = bbox(tile_coord, grid)
+        if self.with_baiduxy:
+            data['by'] = 0
+            data['bx'] = 0
 
         return self.template % data
 
     def __repr__(self):
         return '%s(%r, format=%r)' % (
             self.__class__.__name__, self.template, self.format)
+
 
 def tilecache_path(tile_coord):
     """
@@ -99,6 +107,7 @@ def tilecache_path(tile_coord):
              "%03d" % (int(y) % 1000))
     return '/'.join(parts)
 
+
 def quadkey(tile_coord):
     """
     >>> quadkey((0, 0, 1))
@@ -110,15 +119,16 @@ def quadkey(tile_coord):
     """
     x, y, z = tile_coord
     quadKey = ""
-    for i in range(z,0,-1):
+    for i in range(z, 0, -1):
         digit = 0
-        mask = 1 << (i-1)
+        mask = 1 << (i - 1)
         if (x & mask) != 0:
             digit += 1
         if (y & mask) != 0:
             digit += 2
         quadKey += str(digit)
     return quadKey
+
 
 def tms_path(tile_coord):
     """
@@ -127,12 +137,14 @@ def tms_path(tile_coord):
     """
     return '%d/%d/%d' % (tile_coord[2], tile_coord[0], tile_coord[1])
 
+
 def arcgiscache_path(tile_coord):
-   """
-   >>> arcgiscache_path((1234567, 87654321, 9))
-   'L09/R05397fb1/C0012d687'
-   """
-   return 'L%02d/R%08x/C%08x' % (tile_coord[2], tile_coord[1], tile_coord[0])
+    """
+    >>> arcgiscache_path((1234567, 87654321, 9))
+    'L09/R05397fb1/C0012d687'
+    """
+    return 'L%02d/R%08x/C%08x' % (tile_coord[2], tile_coord[1], tile_coord[0])
+
 
 def bbox(tile_coord, grid):
     """

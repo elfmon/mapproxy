@@ -18,11 +18,12 @@ Service handler (WMS, TMS, etc.).
 """
 from mapproxy.exception import RequestError
 
+
 class Server(object):
     names = tuple()
     request_parser = lambda x: None
     request_methods = ()
-    
+
     def handle(self, req):
         try:
             parsed_req = self.parse_request(req)
@@ -30,7 +31,7 @@ class Server(object):
             return handler(parsed_req)
         except RequestError as e:
             return e.render()
-    
+
     def parse_request(self, req):
         return self.request_parser(req)
 
@@ -42,5 +43,3 @@ class Server(object):
             image = environ['mapproxy.decorate_img'](
                 image, service, layers, environ=environ, query_extent=query_extent)
         return image
-
-

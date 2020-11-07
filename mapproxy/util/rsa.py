@@ -1,3 +1,4 @@
+import base64
 import Crypto.Cipher as Cipher
 import Crypto.Signature as Sign
 import Crypto.Hash as Hash

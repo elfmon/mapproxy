@@ -38,6 +38,7 @@ else:
     from urllib import request as urllib2
 
 from mapproxy.template import template_loader, bunch
+
 env = {'bunch': bunch}
 get_template = template_loader(__name__, 'templates', namespace=env)
 
@@ -48,8 +49,10 @@ def static_filename(name):
     else:
         return pkg_resources.resource_filename(__name__, os.path.join('templates', name))
 
+
 class DemoServer(Server):
     names = ('demo',)
+
     def __init__(self, layers, md, request_parser=None, tile_layers=None,
                  srs=None, image_formats=None, services=None, restful_template=None):
         Server.__init__(self)
@@ -91,11 +94,11 @@ class DemoServer(Server):
         elif 'wmts_layer' in req.args:
             demo = self._render_wmts_template('demo/wmts_demo.html', req)
         elif 'wms_capabilities' in req.args:
-            url = '%s/service?REQUEST=GetCapabilities'%(req.script_url)
+            url = '%s/service?REQUEST=GetCapabilities' % (req.script_url)
             capabilities = urllib2.urlopen(url)
             demo = self._render_capabilities_template('demo/capabilities_demo.html', capabilities, 'WMS', url)
         elif 'wmsc_capabilities' in req.args:
-            url = '%s/service?REQUEST=GetCapabilities&tiled=true'%(req.script_url)
+            url = '%s/service?REQUEST=GetCapabilities&tiled=true' % (req.script_url)
             capabilities = urllib2.urlopen(url)
             demo = self._render_capabilities_template('demo/capabilities_demo.html', capabilities, 'WMS-C', url)
         elif 'wmts_capabilities_kvp' in req.args:
@@ -111,9 +114,9 @@ class DemoServer(Server):
                 # prevent dir traversal (seems it's not possible with urllib2, but better safe then sorry)
                 layer = req.args['layer'].replace('..', '')
                 srs = req.args['srs'].replace('..', '')
-                url = '%s/tms/1.0.0/%s/%s'%(req.script_url, layer, srs)
+                url = '%s/tms/1.0.0/%s/%s' % (req.script_url, layer, srs)
             else:
-                url = '%s/tms/1.0.0/'%(req.script_url)
+                url = '%s/tms/1.0.0/' % (req.script_url)
             capabilities = urllib2.urlopen(url)
             demo = self._render_capabilities_template('demo/capabilities_demo.html', capabilities, 'TMS', url)
         elif req.path == '/demo/':
@@ -178,7 +181,7 @@ class DemoServer(Server):
         bbox = layer.extent.bbox_for(SRS(srs))
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
-        min_res = max(width/256, height/256)
+        min_res = max(width / 256, height / 256)
         return template.substitute(layer=layer,
                                    image_formats=self.image_formats,
                                    format=escape(req.args['format']),
@@ -244,9 +247,9 @@ class DemoServer(Server):
 
     def _render_capabilities_template(self, template, xmlfile, service, url):
         template = get_template(template, default_inherit="demo/static.html")
-        return template.substitute(capabilities = xmlfile,
-                                   service = service,
-                                   url = url)
+        return template.substitute(capabilities=xmlfile,
+                                   service=service,
+                                   url=url)
 
     def authorized_demo(self, environ):
         if 'mapproxy.authorize' in environ:

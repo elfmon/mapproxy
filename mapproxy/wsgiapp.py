@@ -50,7 +50,7 @@ def make_wsgi_app(services_conf=None, debug=False, ignore_config_warnings=True, 
 
     if reloader:
         make_app = lambda: make_wsgi_app(services_conf=services_conf, debug=debug,
-            reloader=False)
+                                         reloader=False)
         return ReloaderApp(services_conf, make_app)
 
     try:
@@ -68,6 +68,7 @@ def make_wsgi_app(services_conf=None, debug=False, ignore_config_warnings=True, 
 
     app.config_files = config_files
     return app
+
 
 class ReloaderApp(object):
     def __init__(self, timestamp_file, make_app_func):
@@ -95,6 +96,7 @@ class ReloaderApp(object):
 
         return self.app(environ, start_response)
 
+
 def wrap_wsgi_debug(app, conf):
     conf.base_config.debug_mode = True
     try:
@@ -109,11 +111,13 @@ def wrap_wsgi_debug(app, conf):
 
     return app
 
+
 class MapProxyApp(object):
     """
     The MapProxy WSGI application.
     """
     handler_path_re = re.compile('^/(\w+)')
+
     def __init__(self, services, base_config):
         self.handlers = {}
         self.base_config = base_config
@@ -128,6 +132,7 @@ class MapProxyApp(object):
 
         if self.cors_origin:
             orig_start_response = start_response
+
             def start_response(status, headers, exc_info=None):
                 headers.append(('Access-control-allow-origin', self.cors_origin))
                 return orig_start_response(status, headers, exc_info)
@@ -144,7 +149,8 @@ class MapProxyApp(object):
                             raise
                         else:
                             log_wsgiapp.fatal('fatal error in %s for %s?%s',
-                                handler_name, environ.get('PATH_INFO'), environ.get('QUERY_STRING'), exc_info=True)
+                                              handler_name, environ.get('PATH_INFO'), environ.get('QUERY_STRING'),
+                                              exc_info=True)
                             import traceback
                             traceback.print_exc(file=environ['wsgi.errors'])
                             resp = Response('internal error', status=500)
@@ -159,5 +165,5 @@ class MapProxyApp(object):
         import mapproxy.version
         html = "<html><body><h1>Welcome to MapProxy %s</h1>" % mapproxy.version.version
         if 'demo' in self.handlers:
-            html += '<p>See all configured layers and services at: <a href="%s/demo/">demo</a>' % (script_url, )
+            html += '<p>See all configured layers and services at: <a href="%s/demo/">demo</a>' % (script_url,)
         return Response(html, mimetype='text/html')

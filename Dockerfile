@@ -18,8 +18,9 @@ RUN set -x \
     python-shapely build-essential python-dev libjpeg-dev \
     zlib1g-dev libfreetype6-dev libproj13\
   && rm -rf /var/lib/apt/lists/* \
+  && useradd -ms /bin/bash mapproxy \
   && mkdir -p /mapproxy \
-  && chown 0755 /mapproxy \
+  && chown mapproxy /mapproxy \
   && pip install -i https://mirrors.aliyun.com/pypi/simple/ PyYAML Shapely Pillow requests geojson uwsgi pycryptodome\
   && mkdir -p /docker-entrypoint-initmapproxy.d
 
@@ -32,6 +33,7 @@ RUN chmod 0755 /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["mapproxy"]
 
+USER mapproxy
 VOLUME ["/mapproxy"]
 EXPOSE 8080
 # Stats

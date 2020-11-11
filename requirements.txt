@@ -18,3 +18,4 @@ botocore~=1.10.27
 riak~=2.7.0
 cryptography~=2.3
 setuptools~=45.2.0
+pyproj >= 2

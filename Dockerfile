@@ -12,6 +12,8 @@ RUN echo "deb http://mirrors.aliyun.com/debian buster main contrib non-free" > /
     echo "deb http://mirrors.aliyun.com/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list && \
     echo "deb-src http://mirrors.aliyun.com/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list
 
+COPY requirements.txt requirements.txt
+
 RUN set -x \
   && apt-get update --fix-missing \
   && apt-get install -y libgeos-dev python-lxml libgdal-dev \
@@ -21,7 +23,8 @@ RUN set -x \
   && useradd -ms /bin/bash mapproxy \
   && mkdir -p /mapproxy \
   && chown mapproxy /mapproxy \
-  && pip install -i https://mirrors.aliyun.com/pypi/simple/ PyYAML Shapely Pillow requests geojson uwsgi pycryptodome\
+  && pip install -i https://mirrors.aliyun.com/pypi/simple/ uwsgi \
+  && pip install -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt \
   && mkdir -p /docker-entrypoint-initmapproxy.d
 
 COPY . /code

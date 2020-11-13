@@ -28,15 +28,15 @@ RUN set -x \
   && mkdir -p /docker-entrypoint-initmapproxy.d
 
 COPY . /code
-RUN cd ./code && python3 ./setup.py install && cd .. && rm -rf ./code
+COPY docker-entrypoint.sh docker-entrypoint.sh
+RUN chown mapproxy docker-entrypoint.sh
+RUN cd code && python /code/setup.py install && rm -rf ../code
 
-COPY docker-entrypoint.sh /
-RUN chmod 0755 /docker-entrypoint.sh
+USER mapproxy
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["mapproxy"]
 
-USER mapproxy
 VOLUME ["/mapproxy"]
 EXPOSE 8080
 # Stats

@@ -1,5 +1,5 @@
 FROM python:3.7
-MAINTAINER Mon <elfmon@gmail.com>
+LABEL maintainer="elfmon@gmail.com"
 
 ENV MAPPROXY_PROCESSES 2
 ENV MAPPROXY_THREADS 2
@@ -29,7 +29,7 @@ RUN set -x \
 
 COPY . /code
 COPY docker-entrypoint.sh docker-entrypoint.sh
-RUN chown mapproxy docker-entrypoint.sh
+RUN chmod 0755 /docker-entrypoint.sh
 RUN cd code && python /code/setup.py install && rm -rf ../code
 
 USER mapproxy

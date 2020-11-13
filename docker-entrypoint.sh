@@ -3,6 +3,7 @@ set -e
 
 if [ "$1" = 'mapproxy' ]; then
   echo "Running additional provisioning"
+  
   for f in /docker-entrypoint-initmapproxy.d/*; do
     case "$f" in
       */*.sh)     echo "$0: running $f"; . "$f" ;;

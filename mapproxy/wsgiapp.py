@@ -155,11 +155,10 @@ class MapProxyApp(object):
                             traceback.print_exc(file=environ['wsgi.errors'])
                             resp = Response('internal error', status=500)
             if resp is None:
-                resp = Response('not found', mimetype='text/plain', status=404)
-                # if req.path in ('', '/'):
-                #     resp = self.welcome_response(req.script_url)
-                # else:
-                #     resp = Response('not found', mimetype='text/plain', status=404)
+                if req.path in ('', '/'):
+                    resp = self.welcome_response(req.script_url)
+                else:
+                    resp = Response('not found', mimetype='text/plain', status=404)
             return resp(environ, start_response)
 
     def welcome_response(self, script_url):

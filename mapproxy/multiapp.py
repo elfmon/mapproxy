@@ -79,8 +79,8 @@ class MultiMapProxy(object):
 
     def handle(self, req):
         app_name = req.pop_path()
-        # if not app_name:
-        #     return self.index_list(req)
+        if not app_name:
+            return self.index_list(req)
 
         if not app_name or (
                 app_name not in self.apps and not self.loader.app_available(app_name)
